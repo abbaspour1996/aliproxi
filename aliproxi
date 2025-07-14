@@ -60,25 +60,23 @@ fi
 
 cd $INSTALLER_DIR
 
-# --- Check if install.py exists ---
-if [ ! -f "install.py" ]; then
-    echo -e "${RED}فایل install.py موجود نیست. لطفاً ساختار پروژه را بررسی کنید.${NC}"
+# --- Check if mtprotoproxy.sh exists ---
+if [ ! -f "mtprotoproxy.sh" ]; then
+    echo -e "${RED}فایل mtprotoproxy.sh موجود نیست. لطفاً ساختار پروژه را بررسی کنید.${NC}"
     exit 1
 fi
 
-# --- Run the installer script ---
-echo -e "${YELLOW}در حال اجرای اسکریپت نصب MTProtoProxy...${NC}"
-echo -e "${YELLOW}لطفاً در صورت نیاز به سوالات اسکریپت پاسخ دهید (مانند پورت، secret و...).${NC}"
-python3 install.py
+# --- Run the mtprotoproxy.sh script ---
+echo -e "${YELLOW}در حال اجرای اسکریپت نصب MTProtoProxy از mtprotoproxy.sh...${NC}"
+bash mtprotoproxy.sh
 
 if [ $? -ne 0 ]; then
-    echo -e "${RED}خطا در اجرای اسکریپت install.py. لطفاً لاگ‌ها را بررسی کنید.${NC}"
-    echo -e "${RED}ممکن است نیاز باشد تا به صورت دستی خطاهای اسکریپت نصب را برطرف کنید.${NC}"
+    echo -e "${RED}خطا در اجرای اسکریپت mtprotoproxy.sh. لطفاً لاگ‌ها را بررسی کنید.${NC}"
     exit 1
 fi
 
 echo -e "${GREEN}نصب MTProtoProxy با موفقیت انجام شد!${NC}"
-echo -e "${GREEN}اطلاعات اتصال پروکسی شما باید پس از اتمام اسکریپت install.py نمایش داده شده باشد.${NC}"
+echo -e "${GREEN}اطلاعات اتصال پروکسی شما باید پس از اتمام اسکریپت mtprotoproxy.sh نمایش داده شده باشد.${NC}"
 echo ""
 echo -e "${YELLOW}برای بررسی وضعیت سرویس، می‌توانید از دستور زیر استفاده کنید:${NC}"
 echo -e "${YELLOW}systemctl status mtproxy${NC}"
@@ -86,4 +84,3 @@ echo ""
 echo -e "${YELLOW}برای دیدن لاگ‌ها:${NC}"
 echo -e "${YELLOW}journalctl -u mtproxy -f${NC}"
 echo ""
-echo -e "${YELLOW}علی جان، اگه سوالی داشتی یا نیاز به کمک بیشتر داشتی، در خدمتم!${NC}"
