@@ -78,7 +78,10 @@ fi
 
 # --- Run the installer script ---
 echo -e "${YELLOW}در حال اجرای اسکریپت نصب MTProtoProxy...${NC}"
-bash $INSTALL_SCRIPT
+
+# Automatically answer the questions by echoing responses
+echo -e "${YELLOW}در حال انتخاب پورت رندوم و secret...${NC}"
+echo "$PORT" | bash $INSTALL_SCRIPT
 
 if [ $? -ne 0 ]; then
     echo -e "${RED}خطا در اجرای اسکریپت نصب. لطفاً لاگ‌ها را بررسی کنید.${NC}"
@@ -94,7 +97,7 @@ while true; do
     echo -e "${YELLOW}در حال به‌روزرسانی پروکسی...${NC}"
     
     # Send the input to automatically upgrade the proxy software
-    echo "2" | bash MTProtoProxyInstall.sh
+    echo "2" | bash $INSTALL_SCRIPT
 
     # Delay for 1 minute before repeating
     sleep 60
