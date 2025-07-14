@@ -28,7 +28,7 @@ echo -e "${YELLOW}در حال به‌روزرسانی پکیج‌ها و نصب 
 apt update -y && apt upgrade -y
 
 # Check if required packages are installed, if not, install them
-REQUIRED_PACKAGES="git python3 python3-pip curl wget"
+REQUIRED_PACKAGES="git python3 python3-pip curl wget tmux"
 for PKG in $REQUIRED_PACKAGES; do
     if ! command_exists $PKG; then
         echo -e "${YELLOW}نصب پکیج مورد نیاز: $PKG...${NC}"
@@ -91,11 +91,25 @@ fi
 
 # --- Restart the service (if needed) ---
 echo -e "${YELLOW}در حال راه‌اندازی یا ریستارت سرویس MTProtoProxy...${NC}"
-systemctl restart mtproxy
 
-# --- Run the script in the background using nohup ---
-echo -e "${YELLOW}در حال اجرای اسکریپت در پس‌زمینه برای به‌روزرسانی خودکار هر 1 دقیقه...${NC}"
-nohup bash -c 'while true; do echo "2" | bash MTProtoProxyInstall.sh; sleep 60; done' &
+# Check if mtproxy service exists before attempting restart
+if systemctl list-units --full --all | grep -Fq 'mtproxy.service'; then
+    systemctl restart mtproxy
+else
+    echo -e "${RED}سرویس mtproxy پیدا نشد. لطفاً سرویس را تنظیم کنید.${NC}"
+fi
+
+# --- Prevent duplicate tmux session ---
+SESSION_NAME="mtproto"
+
+# Kill existing tmux session if it's running
+tmux has-session -t $SESSION_NAME 2>/dev/null
+if [ $? != 0 ]; then
+    echo -e "${YELLOW}ایجاد جلسه tmux جدید...${NC}"
+    tmux new-session -d -s $SESSION_NAME "while true; do echo '2' | bash MTProtoProxyInstall.sh; sleep 60; done"
+else
+    echo -e "${YELLOW}جلسه tmux قبلاً وجود دارد. در حال ادامه...${NC}"
+fi
 
 echo -e "${GREEN}نصب MTProtoProxy با موفقیت انجام شد!${NC}"
 echo -e "${GREEN}اطلاعات اتصال پروکسی شما باید پس از اتمام اسکریپت نصب نمایش داده شده باشد.${NC}"
