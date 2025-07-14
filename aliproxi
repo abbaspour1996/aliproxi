@@ -58,15 +58,17 @@ fi
 
 cd $INSTALLER_DIR
 
-# --- Automatically set the port and secret ---
-PORT=443  # Define the port to be used (you can modify it)
-SECRET=$(head -c 16 /dev/urandom | xxd -p)
+# --- Automatically set the username, secret, and port ---
+USERNAME="randomuser"  # Define a username for secret
+SECRET=$(head -c 16 /dev/urandom | xxd -p)  # Random secret
+PORT=443  # Define the port (you can change this as needed)
 
-# --- Create a config file with the generated SECRET and PORT ---
-echo -e "${YELLOW}در حال پیکربندی پروکسی با secret و port $PORT...${NC}"
+# --- Create a config file with the generated SECRET, PORT, and USERNAME ---
+echo -e "${YELLOW}در حال پیکربندی پروکسی با username، secret و port...${NC}"
 cat <<EOL > config.py
 SECRET = "$SECRET"
 PORT = $PORT
+USERNAME = "$USERNAME"
 EOL
 
 # --- Check if install script exists ---
@@ -79,8 +81,8 @@ fi
 # --- Run the installer script ---
 echo -e "${YELLOW}در حال اجرای اسکریپت نصب MTProtoProxy...${NC}"
 
-# Automatically select port and skip manual input
-echo "$PORT" | bash $INSTALL_SCRIPT
+# Automatically select "Create a random secret" option (option 2)
+echo "2" | bash $INSTALL_SCRIPT
 
 if [ $? -ne 0 ]; then
     echo -e "${RED}خطا در اجرای اسکریپت نصب. لطفاً لاگ‌ها را بررسی کنید.${NC}"
