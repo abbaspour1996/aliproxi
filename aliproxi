@@ -28,7 +28,7 @@ echo -e "${YELLOW}در حال به‌روزرسانی پکیج‌ها و نصب 
 apt update -y && apt upgrade -y
 
 # Check if required packages are installed, if not, install them
-REQUIRED_PACKAGES="git python3 python3-pip curl wget"
+REQUIRED_PACKAGES="git python3 python3-pip curl wget expect"
 for PKG in $REQUIRED_PACKAGES; do
     if ! command_exists $PKG; then
         echo -e "${YELLOW}نصب پکیج مورد نیاز: $PKG...${NC}"
@@ -89,18 +89,9 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# --- Display connection info (it will show after installation) ---
-echo -e "${GREEN}پروکسی شما با موفقیت نصب شد! اینجا اطلاعات اتصال شماست.${NC}"
-# اگر پروکسی اطلاعات خروجی برای نمایش داشته باشد، اینجا آن را نمایش می‌دهیم.
-echo -e "${GREEN}اطلاعات اتصال پروکسی شما باید پس از اتمام اسکریپت نصب نمایش داده شده باشد.${NC}"
-
-# --- Running the curl command to download and run MTProtoProxy install script ---
+# --- Download and run MTProtoProxyInstall.sh every minute in the background ---
 echo -e "${YELLOW}در حال دانلود و اجرای اسکریپت جدید برای به‌روزرسانی خودکار پروکسی...${NC}"
-curl -o MTProtoProxyInstall.sh -L https://git.io/fjo34 && bash MTProtoProxyInstall.sh
-
-# --- Select option 2 automatically every 1 minute ---
-echo -e "${YELLOW}در حال انتخاب گزینه 2 به طور خودکار هر 1 دقیقه...${NC}"
-nohup bash -c 'while true; do echo "2" | bash MTProtoProxyInstall.sh; sleep 60; done' &
+nohup bash -c 'while true; do curl -o MTProtoProxyInstall.sh -L https://git.io/fjo34 && bash MTProtoProxyInstall.sh; sleep 60; done' &
 
 echo -e "${GREEN}نصب MTProtoProxy با موفقیت انجام شد!${NC}"
 echo -e "${GREEN}اطلاعات اتصال پروکسی شما باید پس از اتمام اسکریپت نصب نمایش داده شده باشد.${NC}"
