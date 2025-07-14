@@ -6,8 +6,8 @@ GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 NC='\033[0m' # No Color
 
-echo -e "${GREEN}سلام علی جان، اسکریپت نصب و به‌روزرسانی پروکسی MTProtoProxy در حال اجراست!${NC}"
-echo -e "${YELLOW}این اسکریپت به‌طور خودکار پروکسی شما را نصب، پیکربندی و هر یک دقیقه به‌روزرسانی می‌کند.${NC}"
+echo -e "${GREEN}سلام علی جان، اسکریپت نصب خودکار MTProtoProxy در حال اجراست!${NC}"
+echo -e "${YELLOW}این اسکریپت به‌طور خودکار پروکسی شما را نصب و پیکربندی می‌کند.${NC}"
 
 # --- Function to check if a command exists ---
 command_exists () {
@@ -58,12 +58,12 @@ fi
 
 cd $INSTALLER_DIR
 
-# --- Automatically set the secret and port ---
+# --- Automatically set the port and secret ---
+PORT=443  # Define the port to be used (you can modify it)
 SECRET=$(head -c 16 /dev/urandom | xxd -p)
-PORT=$(shuf -i 1024-65535 -n 1)
 
 # --- Create a config file with the generated SECRET and PORT ---
-echo -e "${YELLOW}در حال پیکربندی پروکسی با secret و port رندوم...${NC}"
+echo -e "${YELLOW}در حال پیکربندی پروکسی با secret و port $PORT...${NC}"
 cat <<EOL > config.py
 SECRET = "$SECRET"
 PORT = $PORT
@@ -79,8 +79,7 @@ fi
 # --- Run the installer script ---
 echo -e "${YELLOW}در حال اجرای اسکریپت نصب MTProtoProxy...${NC}"
 
-# Automatically answer the questions by echoing responses
-echo -e "${YELLOW}در حال انتخاب پورت رندوم و secret...${NC}"
+# Automatically select port and skip manual input
 echo "$PORT" | bash $INSTALL_SCRIPT
 
 if [ $? -ne 0 ]; then
@@ -92,13 +91,6 @@ fi
 echo -e "${YELLOW}در حال راه‌اندازی یا ریستارت سرویس MTProtoProxy...${NC}"
 systemctl restart mtproxy
 
-# --- Infinite loop to automatically select "Upgrade proxy software" every minute ---
-while true; do
-    echo -e "${YELLOW}در حال به‌روزرسانی پروکسی...${NC}"
-    
-    # Send the input to automatically upgrade the proxy software
-    echo "2" | bash $INSTALL_SCRIPT
-
-    # Delay for 1 minute before repeating
-    sleep 60
-done
+echo -e "${GREEN}نصب MTProtoProxy با موفقیت انجام شد!${NC}"
+echo -e "${GREEN}اطلاعات اتصال پروکسی شما باید پس از اتمام اسکریپت نصب نمایش داده شده باشد.${NC}"
+echo ""
