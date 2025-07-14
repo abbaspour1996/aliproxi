@@ -1,0 +1,69 @@
+#!/bin/bash
+
+# آپدیت سیستم و نصب پیش‌نیازها
+sudo apt update -y
+sudo apt install -y git python3-pip build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev
+
+# نصب pip و کتابخانه‌های پایتون
+sudo pip3 install -U pip
+sudo pip3 install -r https://raw.githubusercontent.com/TelegramMessenger/MTProtoProxy/master/requirements.txt
+
+# دانلود کد MTProtoProxy از گیت‌هاب
+git clone https://github.com/TelegramMessenger/MTProtoProxy.git
+cd MTProtoProxy
+
+# ساخت secret key رندوم
+SECRET=$(head -c 16 /dev/urandom | xxd -p)
+
+# انتخاب پورت رندوم
+PORT=$(shuf -i 1024-65535 -n 1)
+
+# ساخت فایل config.py با تنظیمات رندوم
+cat <<EOL > config.py
+SECRET = "$SECRET"
+PORT = $PORT
+EOL
+
+# ساخت اسکریپت برای راه‌اندازی پروکسی
+cat <<EOL > start_proxy.sh
+#!/bin/bash
+cd /$(pwd)
+python3 mtprotoproxy.py
+EOL
+
+chmod +x start_proxy.sh
+
+# اسکریپت برای به‌روزرسانی نرم‌افزار MTProtoProxy
+cat <<EOL > update_proxy.sh
+#!/bin/bash
+while true
+do
+  # دانلود نسخه جدید MTProtoProxy از گیت‌هاب
+  cd /$(pwd)
+  git pull origin master
+
+  # نصب هرگونه به‌روزرسانی
+  pip3 install -r requirements.txt
+
+  # تغییر پورت و secret به‌طور رندوم
+  PORT=$(shuf -i 1024-65535 -n 1)
+  SECRET=$(head -c 16 /dev/urandom | xxd -p)
+
+  # به‌روزرسانی تنظیمات در config.py
+  sed -i "s/SECRET = .*/SECRET = \"$SECRET\"/" config.py
+  sed -i "s/PORT = .*/PORT = $PORT/" config.py
+
+  # راه‌اندازی مجدد پروکسی بدون توقف آن
+  pkill -f mtprotoproxy.py
+  python3 mtprotoproxy.py &
+
+done
+EOL
+
+chmod +x update_proxy.sh
+
+# اجرای پروکسی
+./start_proxy.sh &
+
+# اجرای اسکریپت به‌روزرسانی پروکسی در پس‌زمینه
+./update_proxy.sh &
