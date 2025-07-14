@@ -1,39 +1,89 @@
 #!/bin/bash
 
-# آپدیت سیستم و نصب پیش‌نیازها
-sudo apt update -y
-sudo apt install -y git python3-pip build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev
+# Define colors for better output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+NC='\033[0m' # No Color
 
-# نصب pip و کتابخانه‌های پایتون
-sudo pip3 install -U pip
+echo -e "${GREEN}سلام علی جان، خوش اومدی به اسکریپت نصب خودکار MTProtoProxy!${NC}"
+echo -e "${YELLOW}این اسکریپت MTProtoProxy رو روی سرور شما نصب و پیکربندی می‌کنه.${NC}"
+echo -e "${YELLOW}لطفاً مطمئن بشید که روی سیستم عامل Debian/Ubuntu هستید و دسترسی روت دارید.${NC}"
+echo ""
 
-# دانلود اسکریپت پروکسی از گیت‌هاب
-git clone https://github.com/HirbodBehnam/MTProtoProxyInstaller.git
-cd MTProtoProxyInstaller
+# --- Function to check if a command exists ---
+command_exists () {
+    type "$1" &> /dev/null ;
+}
 
-# نصب وابستگی‌ها از requirements.txt
-pip3 install -r requirements.txt
+# --- Check for root privileges ---
+if [[ $EUID -ne 0 ]]; then
+   echo -e "${RED}خطا: این اسکریپت باید با دسترسی روت اجرا بشه. لطفاً از 'sudo su -' یا 'sudo ./scriptname.sh' استفاده کنید.${NC}"
+   exit 1
+fi
 
-# ساخت secret key رندوم
-SECRET=$(head -c 16 /dev/urandom | xxd -p)
+# --- Check if Python3 is installed ---
+command_exists python3 || { echo -e "${RED}Python3 is not installed. Please install it first.${NC}"; exit 1; }
 
-# انتخاب پورت رندوم
-PORT=$(shuf -i 1024-65535 -n 1)
+# --- Update system and install prerequisites ---
+echo -e "${YELLOW}در حال به‌روزرسانی پکیج‌ها و نصب پیش‌نیازها...${NC}"
+apt update -y && apt upgrade -y
 
-# ساخت فایل config.py با تنظیمات رندوم
-cat <<EOL > config.py
-SECRET = "$SECRET"
-PORT = $PORT
-EOL
+# Check if required packages are installed, if not, install them
+REQUIRED_PACKAGES="git python3 python3-pip curl wget"
+for PKG in $REQUIRED_PACKAGES; do
+    if ! command_exists $PKG; then
+        echo -e "${YELLOW}نصب پکیج مورد نیاز: $PKG...${NC}"
+        apt install -y $PKG
+        if [ $? -ne 0 ]; then
+            echo -e "${RED}خطا در نصب $PKG. لطفاً به صورت دستی نصب کنید و دوباره تلاش کنید.${NC}"
+            exit 1
+        fi
+    fi
+done
 
-# ساخت اسکریپت برای راه‌اندازی پروکسی
-cat <<EOL > start_proxy.sh
-#!/bin/bash
-cd /$(pwd)
-python3 mtprotoproxy.py
-EOL
+echo -e "${GREEN}پیش‌نیازها با موفقیت نصب یا بررسی شدند.${NC}"
 
-chmod +x start_proxy.sh
+# --- Download MTProtoProxyInstaller ---
+INSTALLER_DIR="/opt/MTProtoProxyInstaller"
+echo -e "${YELLOW}در حال دانلود MTProtoProxyInstaller از گیت‌هاب...${NC}"
+if [ ! -d "$INSTALLER_DIR" ]; then
+    git clone https://github.com/HirbodBehnam/MTProtoProxyInstaller.git $INSTALLER_DIR
+    if [ $? -ne 0 ]; then
+        echo -e "${RED}خطا در دانلود MTProtoProxyInstaller. لطفاً اتصال اینترنت خود را بررسی کنید.${NC}"
+        exit 1
+    fi
+else
+    echo -e "${YELLOW}دایرکتوری $INSTALLER_DIR از قبل وجود داره. در حال به‌روزرسانی...${NC}"
+    cd $INSTALLER_DIR && git pull
+fi
 
-# راه‌اندازی پروکسی
-./start_proxy.sh &
+cd $INSTALLER_DIR
+
+# --- Check if install.py exists ---
+if [ ! -f "install.py" ]; then
+    echo -e "${RED}فایل install.py موجود نیست. لطفاً ساختار پروژه را بررسی کنید.${NC}"
+    exit 1
+fi
+
+# --- Run the installer script ---
+echo -e "${YELLOW}در حال اجرای اسکریپت نصب MTProtoProxy...${NC}"
+echo -e "${YELLOW}لطفاً در صورت نیاز به سوالات اسکریپت پاسخ دهید (مانند پورت، secret و...).${NC}"
+python3 install.py
+
+if [ $? -ne 0 ]; then
+    echo -e "${RED}خطا در اجرای اسکریپت install.py. لطفاً لاگ‌ها را بررسی کنید.${NC}"
+    echo -e "${RED}ممکن است نیاز باشد تا به صورت دستی خطاهای اسکریپت نصب را برطرف کنید.${NC}"
+    exit 1
+fi
+
+echo -e "${GREEN}نصب MTProtoProxy با موفقیت انجام شد!${NC}"
+echo -e "${GREEN}اطلاعات اتصال پروکسی شما باید پس از اتمام اسکریپت install.py نمایش داده شده باشد.${NC}"
+echo ""
+echo -e "${YELLOW}برای بررسی وضعیت سرویس، می‌توانید از دستور زیر استفاده کنید:${NC}"
+echo -e "${YELLOW}systemctl status mtproxy${NC}"
+echo ""
+echo -e "${YELLOW}برای دیدن لاگ‌ها:${NC}"
+echo -e "${YELLOW}journalctl -u mtproxy -f${NC}"
+echo ""
+echo -e "${YELLOW}علی جان، اگه سوالی داشتی یا نیاز به کمک بیشتر داشتی، در خدمتم!${NC}"
