@@ -59,7 +59,7 @@ fi
 cd $INSTALLER_DIR
 
 # --- Automatically set the username, secret, and port ---
-USERNAME="randomuser"  # Define a username for secret
+USERNAME="MTSecret1"  # Username for secret
 SECRET=$(head -c 16 /dev/urandom | xxd -p)  # Random secret
 PORT=443  # Define the port (you can change this as needed)
 
@@ -81,8 +81,16 @@ fi
 # --- Run the installer script ---
 echo -e "${YELLOW}در حال اجرای اسکریپت نصب MTProtoProxy...${NC}"
 
-# Automatically select "Create a random secret" option (option 2)
-echo "2" | bash $INSTALL_SCRIPT
+# Automatically answer the questions by echoing responses
+# Select port (443)
+# Enter username (MTSecret1)
+# Select to create a random secret (2)
+# Do not limit users (n)
+# Do not add another secret (n)
+# Restrict to TLS connection only (3)
+# Do not setup advertising tag (n)
+# Set DPI host to www.cloudflare.com
+echo -e "443\nMTSecret1\n2\nn\nn\n3\nn\nwww.cloudflare.com\n" | bash $INSTALL_SCRIPT
 
 if [ $? -ne 0 ]; then
     echo -e "${RED}خطا در اجرای اسکریپت نصب. لطفاً لاگ‌ها را بررسی کنید.${NC}"
