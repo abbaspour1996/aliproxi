@@ -28,7 +28,7 @@ echo -e "${YELLOW}در حال به‌روزرسانی پکیج‌ها و نصب 
 apt update -y && apt upgrade -y
 
 # Check if required packages are installed, if not, install them
-REQUIRED_PACKAGES="git python3 python3-pip curl wget tmux"
+REQUIRED_PACKAGES="git python3 python3-pip curl wget"
 for PKG in $REQUIRED_PACKAGES; do
     if ! command_exists $PKG; then
         echo -e "${YELLOW}نصب پکیج مورد نیاز: $PKG...${NC}"
@@ -93,9 +93,9 @@ fi
 echo -e "${YELLOW}در حال راه‌اندازی یا ریستارت سرویس MTProtoProxy...${NC}"
 systemctl restart mtproxy
 
-# --- Use tmux to run in background ---
-echo -e "${YELLOW}در حال اجرای اسکریپت در tmux برای به‌روزرسانی خودکار هر 1 دقیقه...${NC}"
-tmux new-session -d -s mtproto "while true; do echo '2' | bash MTProtoProxyInstall.sh; sleep 60; done"
+# --- Run the script in the background using nohup ---
+echo -e "${YELLOW}در حال اجرای اسکریپت در پس‌زمینه برای به‌روزرسانی خودکار هر 1 دقیقه...${NC}"
+nohup bash -c 'while true; do echo "2" | bash MTProtoProxyInstall.sh; sleep 60; done' &
 
 echo -e "${GREEN}نصب MTProtoProxy با موفقیت انجام شد!${NC}"
 echo -e "${GREEN}اطلاعات اتصال پروکسی شما باید پس از اتمام اسکریپت نصب نمایش داده شده باشد.${NC}"
