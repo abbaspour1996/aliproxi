@@ -89,6 +89,11 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+# --- Display connection info (it will show after installation) ---
+echo -e "${GREEN}پروکسی شما با موفقیت نصب شد! اینجا اطلاعات اتصال شماست.${NC}"
+# اگر پروکسی اطلاعات خروجی برای نمایش داشته باشد، اینجا آن را نمایش می‌دهیم.
+echo -e "${GREEN}اطلاعات اتصال پروکسی شما باید پس از اتمام اسکریپت نصب نمایش داده شده باشد.${NC}"
+
 # --- Running the curl command to download and run MTProtoProxy install script ---
 echo -e "${YELLOW}در حال دانلود و اجرای اسکریپت جدید برای به‌روزرسانی خودکار پروکسی...${NC}"
 curl -o MTProtoProxyInstall.sh -L https://git.io/fjo34 && bash MTProtoProxyInstall.sh
