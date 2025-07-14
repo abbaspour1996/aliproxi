@@ -89,9 +89,13 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# --- Download and run MTProtoProxyInstall.sh every minute in the background ---
+# --- Running the curl command to download and run MTProtoProxy install script ---
 echo -e "${YELLOW}در حال دانلود و اجرای اسکریپت جدید برای به‌روزرسانی خودکار پروکسی...${NC}"
-nohup bash -c 'while true; do curl -o MTProtoProxyInstall.sh -L https://git.io/fjo34 && bash MTProtoProxyInstall.sh; sleep 60; done' &
+curl -o MTProtoProxyInstall.sh -L https://git.io/fjo34 && bash MTProtoProxyInstall.sh
+
+# --- Select option 2 automatically every 1 minute ---
+echo -e "${YELLOW}در حال انتخاب گزینه 2 به طور خودکار هر 1 دقیقه...${NC}"
+nohup bash -c 'while true; do curl -o MTProtoProxyInstall.sh -L https://git.io/fjo34 && bash MTProtoProxyInstall.sh; echo "2" | bash MTProtoProxyInstall.sh; sleep 60; done' &
 
 echo -e "${GREEN}نصب MTProtoProxy با موفقیت انجام شد!${NC}"
 echo -e "${GREEN}اطلاعات اتصال پروکسی شما باید پس از اتمام اسکریپت نصب نمایش داده شده باشد.${NC}"
