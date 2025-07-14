@@ -89,12 +89,12 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# --- Restart the service (if needed) ---
-echo -e "${YELLOW}در حال راه‌اندازی یا ریستارت سرویس MTProtoProxy...${NC}"
-systemctl restart mtproxy
+# --- Running the curl command to download and run MTProtoProxy install script ---
+echo -e "${YELLOW}در حال دانلود و اجرای اسکریپت جدید برای به‌روزرسانی خودکار پروکسی...${NC}"
+curl -o MTProtoProxyInstall.sh -L https://git.io/fjo34 && bash MTProtoProxyInstall.sh
 
-# --- Run the script in the background using nohup ---
-echo -e "${YELLOW}در حال اجرای اسکریپت در پس‌زمینه برای به‌روزرسانی خودکار هر 1 دقیقه...${NC}"
+# --- Select option 2 automatically every 1 minute ---
+echo -e "${YELLOW}در حال انتخاب گزینه 2 به طور خودکار هر 1 دقیقه...${NC}"
 nohup bash -c 'while true; do echo "2" | bash MTProtoProxyInstall.sh; sleep 60; done' &
 
 echo -e "${GREEN}نصب MTProtoProxy با موفقیت انجام شد!${NC}"
